@@ -16,7 +16,21 @@ def createNewBanquet(id: int, name: str, date: str, address: str, location: str,
             print("Incorrect format for date. Correct format: YYYY-MM-DD")
         print("Error:", e)
 
-# util functions
+def deleteBanquet(id : int):
+    sqliteConnection = sqlite3.connect('banquetDatabase.db')
+    cursor = sqliteConnection.cursor()
+    cursor.execute("DELETE FROM Banquet WHERE id = {id}")
+    print("Deleted banquet with ID {id}")
+
+def printAllBanquets():
+    sqliteConnection = sqlite3.connect('banquetDatabase.db')
+    cursor = sqliteConnection.cursor()
+    print("List of banquets: ")
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        print(row)
+
+# utility functions
 def isValidDate(date : str) -> bool:
     year = date[0:4]
     month = date[5:7]
