@@ -1,6 +1,8 @@
 import sqlite3
 import commands
 
+loggedInUserEmail = None
+
 def commandListAdmin(command, sqliteConnection, cursor):
     
     commandParsed = command.split(" ")
@@ -16,71 +18,83 @@ def commandListAdmin(command, sqliteConnection, cursor):
             commands.createNewBanquet(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], commandParsed[9], commandParsed[10], sqliteConnection, cursor)
             
             for _ in range(4):
-                dishName = input('Enter dish name: ')
-                dishType = input('Enter meal type (e.g., fish, chicken, beef, vegetarian): ')
+                dishName = input('\nEnter dish name: ')
+                dishType = input('Enter meal type (e.g. beef, pork, chicken, fish, vegetarian): ')
                 price = float(input('Enter price: '))
                 specialCuisine = input('Enter special cuisine: ')
                 commands.createMeal(commandParsed[1], dishName, dishType, price, specialCuisine, sqliteConnection, cursor)
-            
+                
         case "deleteBanquet":
             if len(commandParsed) != 2:
-                print('\nInvalid number of arguments, Expected 2 arguments, got', len(commandParsed))
+                print('\nInccorect number of parameters (Expected 2). Command format: deleteBanquet [BanquetID]')
                 return
             commands.deleteBanquet(commandParsed[1], sqliteConnection, cursor)
             
         case "editBanquet":
             if len(commandParsed) != 4:
-                print('\nInvalid number of arguments, Expected 4 arguments, got', len(commandParsed))
+                print('\nIncorrect number of parameters (Expected 4). Command format: editBanquet [BanquetID] [AttributeName] [NewValue]')
                 return
             commands.editBanquet(commandParsed[1], commandParsed[2], commandParsed[3], sqliteConnection, cursor)
             
         case "printBanquet":
             if len(commandParsed) != 1:
-                print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
+                print('\nIncorrect number of parameters (Expected 1). Command format: printBanquet')
                 return
             commands.printBanquet(cursor)
             
         case "printAttendee":
             if len(commandParsed) != 2:
-                print('\nInvalid number of arguments, Expected 2 arguments, got', len(commandParsed))
+                print('\nIncorrect number of parameters (Expected 2). Command format: printAttendee [Email]')
                 return
             commands.printAttendee(commandParsed[1], cursor)
             
         case "editAttendee":
             if len(commandParsed) != 4:
-                print('\nInvalid number of arguments, Expected 4 arguments, got', len(commandParsed))
+                print('\nIncorrect number of parameters (Expected 4). Command format: editAttendee [Email] [AttributeName] [NewValue]')
                 return
             commands.adminEditAttendee(commandParsed[1], commandParsed[2], commandParsed[3], sqliteConnection, cursor)
-
+            
         case _:
             print('\nInvalid command. Please enter a valid command.')
-
+            
 def commandListUser(command, sqliteConnection, cursor):
+    
     commandParsed = command.split(" ")
+    
     match commandParsed[0]:
         case "commandList":
-            print('\nUser commands: commandList, createAttendee, printAttendee, editAttendee')
+            print('\nUser commands: commandList, printBanquet, editAttendee')
             
+        case "printBanquet":
+            if len(commandParsed) != 1:
+                print('\nIncorrect number of parameters (Expected 1). Command format: printBanquet')
+                return
+            commands.printBanquet(cursor)
+            
+        case "printAttendee":
+            if len(commandParsed) != 1:
+                print('\nIncorrect number of parameters (Expected 2). Command format: printAttendee')
+                return
+            commands.printAttendee(loggedInUserEmail, cursor)
+            
+        case "editAttendee":
+            if len(commandParsed) != 5:
+                print('\nIncorrect number of parameters (Expected 5). Command format: editAttendee [Email] [Password] [AttributeName] [NewValue]')
+                return
+            commands.editAttendee(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], sqliteConnection, cursor)
+            
+        case _:
+            print('\nInvalid command. Please enter a valid command.')
+            
+def newAccount(command, sqliteConnection, cursor):
+    commandParsed = command.split(" ")
+    match commandParsed[0]:
         case "createAttendee":
             if len(commandParsed) != 9:
                 print('\nInvalid number of arguments, Expected 9 arguments, got', len(commandParsed))
                 return
             commands.createAttendee(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], sqliteConnection, cursor)
             
-        case "printBanquet":
-            if len(commandParsed) != 1:
-                print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
-                return
-            commands.printBanquet(sqliteConnection, cursor)
-
-        case "editAttendee":
-            if len(commandParsed != 5):
-                print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
-                return
-            commands.editAttendee(sqliteConnection, cursor)
-        case _:
-            print('\nInvalid command. Please enter a valid command.')
-
 def initDatabase():
     try:
         sqliteConnection = sqlite3.connect('banquetDatabase.db')
@@ -90,35 +104,36 @@ def initDatabase():
     except sqlite3.Error as error:
         print('Error:', error)
         return None, None
-
+    
 def main():
     sqliteConnection, cursor = initDatabase()
     if cursor is None:
         return
     
-    role = input('\nEnter your role (admin/user): ')
+    role = input('\nEnter your role (Admin/User): ')
     if role.lower() == 'admin':
         userName = input('\nEnter your username: ')
         password = input('Enter your password: ')
         if commands.adminLogin(userName, password):
             commandListAdmin('commandList', sqliteConnection, cursor)
-        else:
-            print('\nExiting the program...')
-            return
-        
+            
     elif role.lower() == 'user':
+        global loggedInUserEmail
         email = input('\nEnter your email: ')
-        password = input('Enter your password: ')
-        if commands.userLogin(email, password, sqliteConnection, cursor):
-            commandListUser('commandList', sqliteConnection, cursor)
+        if commands.isInDatabase(email, cursor):
+            loggedInUserEmail = email
+            password = input('Enter your password: ')
+            if commands.userLogin(email, password, sqliteConnection, cursor):
+                commandListUser('commandList', sqliteConnection, cursor)
         else:
-            print('\nExiting the program...')
-            return
-        
+            loggedInUserEmail = email
+            createAttendee = input('\nUser not found. Create an account to continue: ')
+            newAccount(createAttendee, sqliteConnection, cursor)
+            
     else:
         print('\nInvalid role. Exiting the program...')
         return
-
+    
     while True:
         command = input('\nEnter a command: ')
         if command.lower() == 'exit':
@@ -128,9 +143,9 @@ def main():
             commandListAdmin(command, sqliteConnection, cursor)
         elif role.lower() == "user":
             commandListUser(command, sqliteConnection, cursor)
-
+            
     cursor.close()
     sqliteConnection.close()
-
+    
 if __name__ == "__main__":
     main()
