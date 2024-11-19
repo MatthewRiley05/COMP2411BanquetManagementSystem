@@ -62,18 +62,6 @@ def editBanquet(banquetID: int, attributeName: str, newValue, sqliteConnection, 
             print("Incorrect format for date. Correct format: YYYY-MM-DD")
         print("Error:", e)
 
-def editAttendee(emailAddress: str, password: str, attributeName : str, newValue, sqliteConnection, cursor):
-    try:
-        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE EmailAddress = {emailAddress} AND Password = {password}")
-        sqliteConnection.commit()
-        print(f"Updated Attendee with email address {emailAddress}. Changed {attributeName} to {newValue}")
-    except sqlite3.Error as e:
-        if attributeName not in ("EmailAddress", "FirstName", "LastName", "Address", "Password", "Type", "MobileNumber", "AffiliatedOrganization"):
-            print("Invalid attribute name.")
-        if attributeName == "MobileNumber" and newValue.isnumeric() == False:
-            print("New mobile number must be a number.")
-        print("Error: ", e)
-
 def printBanquet(sqliteConnection, cursor):
     try: 
         cursor.execute("SELECT * FROM Banquet")
@@ -126,8 +114,26 @@ def adminEditAttendee(emailAddress: str, attributeName: str, newValue, sqliteCon
     except sqlite3.Error as e:
         if attributeName not in ("EmailAddress", "FirstName", "LastName", "Address", "Password", "AttendeeType", "MobileNumber", "AffiliatedOrganization"):
             print("Invalid attribute name.")
-        if attributeName == "MobileNumber" and newValue != 8:
+        if attributeName == "MobileNumber" and newValue != 8 and not newValue.isnumeric():
             print("Mobile number must be 8 digits.")
+        if attributeName == "EmailAddress" and newValue.count("@") != 1:
+            print("Invalid email address.")
+        if attributeName == "AttendeeType" and newValue not in ("staff", "student", "alumni", "guest"):
+            print("Value of 'attendeeType' must be 'staff', 'student', 'alumni', or 'guest'.")
+        if attributeName == "AffiliatedOrganization" and newValue not in ("PolyU", "SPEED", "HKCC", "Others"):
+            print("Value of 'affiliatedOrganization' must be 'PolyU', 'SPEED', 'HKCC', or 'Others'.")
+        print("Error:", e)
+        
+def editAttendee(emailAddress: str, password: str, attributeName: str, newValue, sqliteConnection, cursor):
+    try:
+        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE EmailAddress = {emailAddress} AND Password = {password}")
+        sqliteConnection.commit()
+        print(f"Updated Attendee with email address {emailAddress}. Changed {attributeName} to {newValue}")
+    except sqlite3.Error as e:
+        if attributeName not in ("EmailAddress", "FirstName", "LastName", "Address", "Password", "Type", "MobileNumber", "AffiliatedOrganization"):
+            print("Invalid attribute name.")
+        if attributeName == "MobileNumber" and newValue != 8 and not newValue.isnumeric():
+            print("New mobile number must be a number.")
         if attributeName == "EmailAddress" and newValue.count("@") != 1:
             print("Invalid email address.")
         if attributeName == "AttendeeType" and newValue not in ("staff", "student", "alumni", "guest"):
