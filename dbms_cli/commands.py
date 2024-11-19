@@ -109,6 +109,8 @@ def printAttendee(emailAddress, sqliteConnection, cursor):
     except sqlite3.Error as e:
         print("Error:", e)
 
+
+
 # Utility functions
 def isValidDate(date : str) -> bool:
     year = date[0:4]
