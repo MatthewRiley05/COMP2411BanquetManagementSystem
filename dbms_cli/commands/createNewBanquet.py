@@ -8,7 +8,7 @@ def createNewBanquet(id : int, name : str, date_time : str, address : str, locat
     
     try:
         return "INSERT INTO Banquet VALUES ({id}, {name}, {date_time}, {address}, {location}, {quota}, {available}, {first_name}, {last_name}, {remarks})"
-    except:
+    except Exception:
         if (None in (id, name, date_time, address, location, quota, available, first_name, last_name)):
             print("Value of all arguments (except remarks) must not be None .")
         if (available != 0 or 1):
