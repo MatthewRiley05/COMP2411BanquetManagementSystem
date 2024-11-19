@@ -5,6 +5,7 @@ def createNewBanquet(id: int, name: str, date: str, address: str, location: str,
         sqliteConnection = sqlite3.connect('banquetDatabase.db')
         cursor = sqliteConnection.cursor()
         cursor.execute("INSERT INTO Banquet VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, name, date, address, location, quota, available, first_name, last_name, remarks))
+        sqliteConnection.commit()
         print(f"Created a new banquet. ID: {id}, Name: {name}")
     except Exception as e:
         if None in (id, name, date, address, location, quota, available, first_name, last_name):
