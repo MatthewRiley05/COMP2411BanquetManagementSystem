@@ -1,4 +1,3 @@
-import datetime
 import sqlite3
 
 def createNewBanquet(id : int, name : str, date : str, address : str, location : str, quota : int, available : int, first_name : str, last_name : str, remarks, cursor):
@@ -10,10 +9,17 @@ def createNewBanquet(id : int, name : str, date : str, address : str, location :
     except Exception:
         if (None in (id, name, date, address, location, quota, available, first_name, last_name)):
             print("Value of all arguments (except remarks) must not be None .")
-        if (available != 0 or 1):
+        if available not in (0, 1):
             print("Value of 'available' must be 0 (false) or 1 (true).")
         if (isValidDate(date)):
             print("Incorrect format for date. Correct format: YYYY-MM-DD")
+
+def deleteBanquet(id : int):
+    sqliteConnection = sqlite3.connect('banquetDatabase.db')
+    cursor = sqliteConnection.cursor()
+    cursor.execute("DELETE FROM Banquet WHERE id = {id}")
+    print("Deleted banquet with ID {id}")
+    
 
 # util functions
 def isValidDate(date : str) -> bool:
