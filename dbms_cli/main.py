@@ -9,6 +9,16 @@ def commandList(command, cursor):
                 print('Invalid number of arguments, Expected 11 arguments, got', len(commandParsed))
                 return
             commands.createNewBanquet(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], commandParsed[9], commandParsed[10], cursor)
+        case "deleteBanquet":
+            if len(commandParsed) != 2:
+                print('Invalid number of arguments, Expected 2 arguments, got', len(commandParsed))
+                return
+            commands.deleteBanquet(commandParsed[1], cursor)
+        case "printBanquets":
+            if len(commandParsed) != 1:
+                print('Invalid number of arguments, Expected 1 argument, got', len(commandParsed))
+                return
+            commands.printBanquets(cursor)
 
 def initDatabase():
     try:
@@ -26,7 +36,7 @@ def main():
         return
 
     while True:
-        command = input('Enter a command: ')
+        command = input('\nEnter a command: ')
         if command.lower() == 'exit':
             print('Exiting the program...')
             break
