@@ -4,6 +4,8 @@ import commands
 def commandListAdmin(command, sqliteConnection, cursor):
     commandParsed = command.split(" ")
     match commandParsed[0]:
+        case "commandList":
+            print('\nAdmin commands: commandList, createNewBanquet, deleteBanquet, printBanquet')
         case "createNewBanquet":
             if len(commandParsed) != 11:
                 print('\nInvalid number of arguments, Expected 11 arguments, got', len(commandParsed))
@@ -19,22 +21,24 @@ def commandListAdmin(command, sqliteConnection, cursor):
                 print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
                 return
             commands.printBanquet(sqliteConnection, cursor)
+        case "printAttendee":
+            if len(commandParsed) != 1:
+                print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
+                return
+            commands.printAttendee(sqliteConnection, cursor)
         case _:
             print('\nInvalid command. Please enter a valid command.')
 
 def commandListUser(command, sqliteConnection, cursor):
     commandParsed = command.split(" ")
     match commandParsed[0]:
-        case "createNewBanquet":
-            if len(commandParsed) != 11:
-                print('\nInvalid number of arguments, Expected 11 arguments, got', len(commandParsed))
+        case "commandList":
+            print('\nUser commands: commandList, createAttendee, printAttendee')
+        case "createAttendee":
+            if len(commandParsed) != 9:
+                print('\nInvalid number of arguments, Expected 9 arguments, got', len(commandParsed))
                 return
-            commands.createNewBanquet(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], commandParsed[9], commandParsed[10], sqliteConnection, cursor)
-        case "deleteBanquet":
-            if len(commandParsed) != 2:
-                print('\nInvalid number of arguments, Expected 2 arguments, got', len(commandParsed))
-                return
-            commands.deleteBanquet(commandParsed[1], sqliteConnection, cursor)
+            commands.createAttendee(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], sqliteConnection, cursor)
         case "printBanquet":
             if len(commandParsed) != 1:
                 print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
@@ -60,9 +64,22 @@ def main():
     
     role = input('\nEnter your role (admin/user): ')
     if role.lower() == 'admin':
-        print('\nAdmin commands: createNewBanquet, deleteBanquet, printBanquet')
+        userName = input('\nEnter your username: ')
+        password = input('Enter your password: ')
+        if commands.adminLogin(userName, password):
+            commandListAdmin('commandList', sqliteConnection, cursor)
+        else:
+            print('\nExiting the program...')
+            return
+        
     elif role.lower() == 'user':
-        print('\nUser commands: printBanquet')
+        email = input('\nEnter your email: ')
+        password = input('Enter your password: ')
+        if commands.userLogin(email, password, sqliteConnection, cursor):
+            commandListUser('commandList', sqliteConnection, cursor)
+        else:
+            print('\nExiting the program...')
+            return
     else:
         print('\nInvalid role. Exiting the program...')
         return
