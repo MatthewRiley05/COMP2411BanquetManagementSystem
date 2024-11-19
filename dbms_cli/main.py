@@ -1,7 +1,7 @@
 import sqlite3
  
 try:
-   
+    
     sqliteConnection = sqlite3.connect('banquetDatabase.db')
     cursor = sqliteConnection.cursor()
     print('DB Init')
