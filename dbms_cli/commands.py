@@ -62,7 +62,19 @@ def editBanquet(banquetID: int, attributeName: str, newValue, sqliteConnection, 
             print("Incorrect format for date. Correct format: YYYY-MM-DD")
         print("Error:", e)
 
-def printBanquet(cursor):
+def editAttendee(emailAddress: str, password: str, attributeName : str, newValue, sqliteConnection, cursor):
+    try:
+        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE EmailAddress = {emailAddress} AND Password = {password}")
+        sqliteConnection.commit()
+        print(f"Updated Attendee with email address {emailAddress}. Changed {attributeName} to {newValue}")
+    except sqlite3.Error as e:
+        if attributeName not in ("EmailAddress", "FirstName", "LastName", "Address", "Password", "Type", "MobileNumber", "AffiliatedOrganization"):
+            print("Invalid attribute name.")
+        if attributeName == "MobileNumber" and newValue.isnumeric() == False:
+            print("New mobile number must be a number.")
+        print("Error: ", e)
+
+def printBanquet(sqliteConnection, cursor):
     try: 
         cursor.execute("SELECT * FROM Banquet")
         print("\nList of banquets: ")
