@@ -1,6 +1,6 @@
 import sqlite3
 
-def adminLogin(username : str, password : str) -> bool:
+def adminLogin(username: str, password: str) -> bool:
     try:
         if username == "admin" and password == "admin":
             print("\nLogin successful.")
@@ -12,7 +12,7 @@ def adminLogin(username : str, password : str) -> bool:
         print("Error:", e)
         return False
 
-def userLogin(emailAddress : str, password : str, sqliteConnection, cursor) -> bool:
+def userLogin(emailAddress: str, password: str, sqliteConnection, cursor) -> bool:
     try:
         cursor.execute(f"SELECT * FROM Attendee WHERE EmailAddress = '{emailAddress}' AND Password = '{password}'")
         if cursor.fetchone() is not None:
@@ -27,7 +27,8 @@ def userLogin(emailAddress : str, password : str, sqliteConnection, cursor) -> b
 
 def createNewBanquet(id: int, name: str, date: str, address: str, location: str, quota: int, available: int, first_name: str, last_name: str, remarks, sqliteConnection, cursor):
     try:
-        cursor.execute("INSERT INTO Banquet VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, name, date, address, location, quota, available, first_name, last_name, remarks))
+        cursor.execute("INSERT INTO Banquet VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                       (id, name, date, address, location, quota, available, first_name, last_name, remarks))
         sqliteConnection.commit()
         print(f"Created a new banquet. ID: {id}, Name: {name}")
     except sqlite3.Error as e:
@@ -39,7 +40,7 @@ def createNewBanquet(id: int, name: str, date: str, address: str, location: str,
             print("Incorrect format for date. Correct format: YYYY-MM-DD")
         print("Error:", e)
 
-def deleteBanquet(id : int, sqliteConnection, cursor):
+def deleteBanquet(id: int, sqliteConnection, cursor):
     try:
         cursor.execute(f"DELETE FROM Banquet WHERE BanquetID = {id}")
         sqliteConnection.commit()
@@ -56,10 +57,24 @@ def printBanquet(sqliteConnection, cursor):
             print(row)
     except sqlite3.Error as e:
         print("Error:", e)
-
-def createAttendee(emailAddress : str, firstName : str, lastName : str, address : str,  password : str, attendeeType : str, mobileNumber : int, affiliatedOrganization : str, sqliteConnection, cursor):
+        
+def createMeal(banquetID: int, dishName: str, dishType: str, price: float, specialCuisine: str, sqliteConnection, cursor):
     try:
-        cursor.execute("INSERT INTO Attendee VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (emailAddress, firstName, lastName, address, password, attendeeType, mobileNumber, affiliatedOrganization))
+        cursor.execute("INSERT INTO Meal VALUES (?, ?, ?, ?, ?)",
+                       (banquetID, dishName, dishType, price, specialCuisine))
+        sqliteConnection.commit()
+        print(f"\nCreated a new meal. Banquet ID: {banquetID}, Dish Name: {dishName}")
+    except sqlite3.Error as e:
+        if None in (banquetID, dishName, dishType, price, specialCuisine):
+            print("Value of all arguments must not be None.")
+        if dishType not in ("fish", "chicken", "beef", "vegetarian"):
+            print("Value of 'disType' must be 'appetizer', 'main course', or 'dessert'.")
+        print("Error:", e)
+
+def createAttendee(emailAddress: str, firstName: str, lastName: str, address: str,  password: str, attendeeType: str, mobileNumber: int, affiliatedOrganization: str, sqliteConnection, cursor):
+    try:
+        cursor.execute("INSERT INTO Attendee VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                       (emailAddress, firstName, lastName, address, password, attendeeType, mobileNumber, affiliatedOrganization))
         sqliteConnection.commit()
         print(f"Created a new user account. ID: {emailAddress}, Name: {firstName} {lastName}")
     except sqlite3.Error as e:
@@ -77,13 +92,20 @@ def createAttendee(emailAddress : str, firstName : str, lastName : str, address 
             print("Value of 'affiliatedOrganization' must be 'PolyU', 'SPEED', 'HKCC', or 'Others'.")
         print("Error:", e)
         
-def printAttendee(sqliteConnection, cursor):
+def printAttendee(emailAddress, sqliteConnection, cursor):
     try: 
-        cursor.execute("SELECT * FROM Attendee")
-        print("\nList of attendees: ")
-        all_rows = cursor.fetchall()
-        for row in all_rows:
-            print(row)
+        if emailAddress == "all":
+            cursor.execute("SELECT * FROM Attendee")
+            print("\nList of attendees: ")
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                print(row)
+        else:
+            cursor.execute(f"SELECT * FROM Attendee WHERE EmailAddress = '{emailAddress}'")
+            print("\nList of attendees: ")
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                print(row)
     except sqlite3.Error as e:
         print("Error:", e)
 
