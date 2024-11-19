@@ -28,6 +28,12 @@ def commandListAdmin(command, sqliteConnection, cursor):
                 return
             commands.deleteBanquet(commandParsed[1], sqliteConnection, cursor)
             
+        case "editBanquet":
+            if len(commandParsed) != 4:
+                print('\nInvalid number of arguments, Expected 4 arguments, got', len(commandParsed))
+                return
+            commands.editBanquet(commandParsed[1], commandParsed[2], commandParsed[3], sqliteConnection, cursor)
+            
         case "printBanquet":
             if len(commandParsed) != 1:
                 print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))

@@ -48,6 +48,20 @@ def deleteBanquet(id: int, sqliteConnection, cursor):
     except sqlite3.Error as e:
         print("Error:", e)
 
+def editBanquet(banquetID: int, attributeName: str, newValue, sqliteConnection, cursor):
+    try:
+        cursor.execute(f"UPDATE Banquet SET {attributeName} = '{newValue}' WHERE BanquetID = {banquetID}")
+        sqliteConnection.commit()
+        print(f"Updated banquet {banquetID} {attributeName} to {newValue}")
+    except sqlite3.Error as e:
+        if attributeName not in ("BanquetID", "Name", "DateTime", "Address", "Location", "Quota", "Available", "FirstNameofContactStaff", "LastNameofContactStaff", "Remarks"):
+            print("Invalid attribute name.")
+        if attributeName == "Available" and newValue not in (0, 1):
+            print("Value of 'available' must be 0 (false) or 1 (true).")
+        if attributeName == "Date" and not isValidDate(newValue):
+            print("Incorrect format for date. Correct format: YYYY-MM-DD")
+        print("Error:", e)
+
 def printBanquet(sqliteConnection, cursor):
     try: 
         cursor.execute("SELECT * FROM Banquet")
