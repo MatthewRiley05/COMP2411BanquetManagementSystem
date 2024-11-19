@@ -87,7 +87,7 @@ def printAttendee(sqliteConnection, cursor):
     except sqlite3.Error as e:
         print("Error:", e)
 
-# utility functions
+# Utility functions
 def isValidDate(date : str) -> bool:
     year = date[0:4]
     month = date[5:7]
