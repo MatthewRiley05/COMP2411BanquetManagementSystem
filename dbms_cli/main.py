@@ -7,11 +7,11 @@ def commandListAdmin(command, sqliteConnection, cursor):
     
     match commandParsed[0]:
         case "commandList":
-            print('\nAdmin commands: commandList, createNewBanquet, deleteBanquet, printBanquet, printAttendee')
+            print('\nAdmin commands: commandList, createNewBanquet, deleteBanquet, editBanquet, printBanquet, printAttendee, editAttendee')
             
         case "createNewBanquet":
             if len(commandParsed) != 11:
-                print('\nInvalid number of arguments, Expected 11 arguments, got', len(commandParsed))
+                print('\nIncorrect number of parameters (Expected 11). Command format: createNewBanquet [BanquetID] [Name] [DateTime] [Address] [Location] [Quota] [Available] [FirstNameofContactStaff] [LastNameofContactStaff] [Remarks]')
                 return
             commands.createNewBanquet(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], commandParsed[9], commandParsed[10], sqliteConnection, cursor)
             
@@ -38,14 +38,20 @@ def commandListAdmin(command, sqliteConnection, cursor):
             if len(commandParsed) != 1:
                 print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
                 return
-            commands.printBanquet(sqliteConnection, cursor)
+            commands.printBanquet(cursor)
             
         case "printAttendee":
             if len(commandParsed) != 2:
                 print('\nInvalid number of arguments, Expected 2 arguments, got', len(commandParsed))
                 return
-            commands.printAttendee(commandParsed[1], sqliteConnection, cursor)
+            commands.printAttendee(commandParsed[1], cursor)
             
+        case "editAttendee":
+            if len(commandParsed) != 4:
+                print('\nInvalid number of arguments, Expected 4 arguments, got', len(commandParsed))
+                return
+            commands.adminEditAttendee(commandParsed[1], commandParsed[2], commandParsed[3], sqliteConnection, cursor)
+
         case _:
             print('\nInvalid command. Please enter a valid command.')
 

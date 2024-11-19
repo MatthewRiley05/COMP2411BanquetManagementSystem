@@ -62,7 +62,7 @@ def editBanquet(banquetID: int, attributeName: str, newValue, sqliteConnection, 
             print("Incorrect format for date. Correct format: YYYY-MM-DD")
         print("Error:", e)
 
-def printBanquet(sqliteConnection, cursor):
+def printBanquet(cursor):
     try: 
         cursor.execute("SELECT * FROM Banquet")
         print("\nList of banquets: ")
@@ -106,7 +106,25 @@ def createAttendee(emailAddress: str, firstName: str, lastName: str, address: st
             print("Value of 'affiliatedOrganization' must be 'PolyU', 'SPEED', 'HKCC', or 'Others'.")
         print("Error:", e)
         
-def printAttendee(emailAddress, sqliteConnection, cursor):
+def adminEditAttendee(emailAddress: str, attributeName: str, newValue, sqliteConnection, cursor):
+    try:
+        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE EmailAddress = '{emailAddress}'")
+        sqliteConnection.commit()
+        print(f"Updated attendee {emailAddress} {attributeName} to {newValue}")
+    except sqlite3.Error as e:
+        if attributeName not in ("EmailAddress", "FirstName", "LastName", "Address", "Password", "AttendeeType", "MobileNumber", "AffiliatedOrganization"):
+            print("Invalid attribute name.")
+        if attributeName == "MobileNumber" and newValue != 8:
+            print("Mobile number must be 8 digits.")
+        if attributeName == "EmailAddress" and newValue.count("@") != 1:
+            print("Invalid email address.")
+        if attributeName == "AttendeeType" and newValue not in ("staff", "student", "alumni", "guest"):
+            print("Value of 'attendeeType' must be 'staff', 'student', 'alumni', or 'guest'.")
+        if attributeName == "AffiliatedOrganization" and newValue not in ("PolyU", "SPEED", "HKCC", "Others"):
+            print("Value of 'affiliatedOrganization' must be 'PolyU', 'SPEED', 'HKCC', or 'Others'.")
+        print("Error:", e)
+        
+def printAttendee(emailAddress, cursor):
     try: 
         if emailAddress == "all":
             cursor.execute("SELECT * FROM Attendee")
