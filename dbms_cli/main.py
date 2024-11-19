@@ -53,7 +53,7 @@ def commandListUser(command, sqliteConnection, cursor):
     commandParsed = command.split(" ")
     match commandParsed[0]:
         case "commandList":
-            print('\nUser commands: commandList, createAttendee, printAttendee')
+            print('\nUser commands: commandList, createAttendee, printAttendee, editAttendee')
             
         case "createAttendee":
             if len(commandParsed) != 9:
@@ -66,7 +66,12 @@ def commandListUser(command, sqliteConnection, cursor):
                 print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
                 return
             commands.printBanquet(sqliteConnection, cursor)
-            
+
+        case "editAttendee":
+            if len(commandParsed != 5):
+                print('\nInvalid number of arguments, Expected 1 argument, got', len(commandParsed))
+                return
+            commands.editAttendee(sqliteConnection, cursor)
         case _:
             print('\nInvalid command. Please enter a valid command.')
 
