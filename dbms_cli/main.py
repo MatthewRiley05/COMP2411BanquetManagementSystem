@@ -1,16 +1,14 @@
 import sqlite3
+import commands
 
 def commandList(command, cursor):
-    commandLower = command.lower()
-    match commandLower:
-        case "print tables":
-            print("Printing tables...")
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = cursor.fetchall()
-            for table in tables:
-                table_name = table[0]
-                if not table_name.startswith('sqlite'):
-                    print(f'\nTable: {table_name}')
+    commandParsed = command.split(" ")
+    match commandParsed[0]:
+        case "createNewBanquet":
+            if len(commandParsed) != 11:
+                print('Invalid number of arguments, Expected 11 arguments, got', len(commandParsed))
+                return
+            commands.createNewBanquet(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], commandParsed[9], commandParsed[10], cursor)
 
 def initDatabase():
     try:
