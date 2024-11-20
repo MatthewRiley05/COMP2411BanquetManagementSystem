@@ -15,7 +15,7 @@ def adminLogin(username: str, password: str) -> bool:
     
 def userLogin(emailAddress: str, password: str, sqliteConnection, cursor) -> bool:
     try:
-        cursor.execute(f"SELECT * FROM Attendee WHERE EmailAddress = '{emailAddress}' AND Password = '{password}'")
+        cursor.execute(f"SELECT * FROM Attendee WHERE emailAddress = '{emailAddress}' AND password = '{password}'")
         if cursor.fetchone() is not None:
             print("\nLogin successful.")
             return True
@@ -26,26 +26,30 @@ def userLogin(emailAddress: str, password: str, sqliteConnection, cursor) -> boo
         print("Error:", e)
         return False
     
-def createNewBanquet(id: int, name: str, date: str, address: str, location: str, quota: int, available: int, first_name: str, last_name: str, remarks, sqliteConnection, cursor):
+def createNewBanquet(banquetID: int, name: str, dateTime: str, address: str, location: str, quota: int, available: int, firstNameOfContactStaff: str, lastNameOfContactStaff: str, remarks, sqliteConnection, cursor):
     try:
         cursor.execute("INSERT INTO Banquet VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                       (id, name, date, address, location, quota, available, first_name, last_name, remarks))
+                       (banquetID, name, dateTime, address, location, quota, available, firstNameOfContactStaff, lastNameOfContactStaff, remarks))
         sqliteConnection.commit()
-        print(f"\nCreated a new banquet. ID: {id}, Name: {name}")
+        print(f"\nCreated a new banquet. ID: {banquetID}, Name: {name}")
     except sqlite3.Error as e:
-        if None in (id, name, date, address, location, quota, available, first_name, last_name):
+        if None in (banquetID, name, dateTime, address, location, quota, available, firstNameOfContactStaff, lastNameOfContactStaff):
             print("\nValue of all arguments (except remarks) must not be None.")
         if available not in (0, 1):
             print("\nValue of 'available' must be 0 (false) or 1 (true).")
-        if not isValidDate(date):
+        if not isValidDate(dateTime):
             print("\nIncorrect format for date. Correct format: YYYY-MM-DD_HH:MM")
         print("\nError:", e)
         
-def deleteBanquet(id: int, sqliteConnection, cursor):
+def deleteBanquet(banquetID: int, sqliteConnection, cursor):
     try:
-        cursor.execute(f"DELETE FROM Banquet WHERE BanquetID = {id}")
+        cursor.execute(f"DELETE FROM Banquet WHERE banquetID = {banquetID}")
         sqliteConnection.commit()
-        print(f"\nDeleted banquet with ID {id}")
+        cursor.execute(f"DELETE FROM Meal WHERE banquetID = {banquetID}")
+        sqliteConnection.commit()
+        cursor.execute(f"DELETE FROM Registers WHERE banquetID = {banquetID}")
+        sqliteConnection.commit()
+        print(f"\nDeleted banquet with ID {banquetID}")
     except sqlite3.Error as e:
         print("\nError:", e)
         
@@ -72,16 +76,15 @@ def printBanquet(banquetID, cursor):
             for row in all_rows:
                 print(row)
         else:
-            cursor.execute(f"SELECT * FROM Banquet WHERE BanquetID = {banquetID}")
+            cursor.execute(f"SELECT * FROM Banquet WHERE banquetID = {banquetID}")
             print(f"Banquet {banquetID}: ")
             banquet = cursor.fetchone()
             print(banquet)
-            cursor.execute(f"SELECT * FROM Meal WHERE BanquetID = {banquetID}")
+            cursor.execute(f"SELECT * FROM Meal WHERE banquetID = {banquetID}")
             meals = cursor.fetchall()
             print("\nMeals: ")
             for meal in meals:
                 print(meal)
-            
     except sqlite3.Error as e:
         print("\nError:", e)
         
@@ -94,8 +97,10 @@ def createMeal(banquetID: int, dishName: str, dishType: str, price: float, speci
     except sqlite3.Error as e:
         if None in (banquetID, dishName, dishType, price, specialCuisine):
             print("\nValue of all arguments must not be None.")
-        if dishType not in ("fish", "chicken", "beef", "vegetarian"):
-            print("\nValue of 'disType' must be 'appetizer', 'main course', or 'dessert'.")
+        if len(dishName.split()) > 1:
+            print("\nDish name must not contain spaces.")
+        if dishType not in ("beef", "pork", "chicken", "fish", "vegetarian"):
+            print("\nValue of 'dishType' must be 'beef', 'pork', 'chicken', 'fish', 'vegetarian'")
         print("\nError:", e)
         
 def createAttendee(emailAddress: str, firstName: str, lastName: str, address: str,  password: str, attendeeType: str, mobileNumber: int, affiliatedOrganization: str, sqliteConnection, cursor):
@@ -121,37 +126,37 @@ def createAttendee(emailAddress: str, firstName: str, lastName: str, address: st
         
 def adminEditAttendee(emailAddress: str, attributeName: str, newValue, sqliteConnection, cursor):
     try:
-        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE EmailAddress = '{emailAddress}'")
+        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE emailAddress = '{emailAddress}'")
         sqliteConnection.commit()
         print(f"\nUpdated attendee {emailAddress} {attributeName} to {newValue}")
     except sqlite3.Error as e:
-        if attributeName not in ("EmailAddress", "FirstName", "LastName", "Address", "Password", "AttendeeType", "MobileNumber", "AffiliatedOrganization"):
+        if attributeName not in ("emailAddress", "firstName", "lastName", "address", "password", "attendeeType", "mobileNumber", "affiliatedOrganization"):
             print("\nInvalid attribute name.")
-        if attributeName == "MobileNumber" and newValue != 8 and not newValue.isnumeric():
+        if attributeName == "mobileNumber" and newValue != 8 and not newValue.isnumeric():
             print("\nMobile number must be 8 digits.")
-        if attributeName == "EmailAddress" and newValue.count("@") != 1:
+        if attributeName == "emailAddress" and newValue.count("@") != 1:
             print("\nInvalid email address.")
-        if attributeName == "AttendeeType" and newValue not in ("staff", "student", "alumni", "guest"):
+        if attributeName == "attendeeType" and newValue not in ("staff", "student", "alumni", "guest"):
             print("\nValue of 'attendeeType' must be 'staff', 'student', 'alumni', or 'guest'.")
-        if attributeName == "AffiliatedOrganization" and newValue not in ("PolyU", "SPEED", "HKCC", "Others"):
+        if attributeName == "affiliatedOrganization" and newValue not in ("PolyU", "SPEED", "HKCC", "Others"):
             print("\nValue of 'affiliatedOrganization' must be 'PolyU', 'SPEED', 'HKCC', or 'Others'.")
         print("\nError:", e)
         
 def editAttendee(emailAddress: str, password: str, attributeName: str, newValue, sqliteConnection, cursor):
     try:
-        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE EmailAddress = '{emailAddress}' AND Password = '{password}'")
+        cursor.execute(f"UPDATE Attendee SET {attributeName} = '{newValue}' WHERE emailAddress = '{emailAddress}' AND password = '{password}'")
         sqliteConnection.commit()
         print(f"\nUpdated Attendee with email address {emailAddress}. Changed {attributeName} to {newValue}")
     except sqlite3.Error as e:
-        if attributeName not in ("EmailAddress", "FirstName", "LastName", "Address", "Password", "Type", "MobileNumber", "AffiliatedOrganization"):
+        if attributeName not in ("emailAddress", "firstName", "lastName", "address", "password", "type", "mobileNumber", "affiliatedOrganization"):
             print("\nInvalid attribute name.")
-        if attributeName == "MobileNumber" and newValue != 8 and not newValue.isnumeric():
+        if attributeName == "mobileNumber" and newValue != 8 and not newValue.isnumeric():
             print("\nNew mobile number must be a number.")
-        if attributeName == "EmailAddress" and newValue.count("@") != 1:
+        if attributeName == "emailAddress" and newValue.count("@") != 1:
             print("\nInvalid email address.")
-        if attributeName == "AttendeeType" and newValue not in ("staff", "student", "alumni", "guest"):
+        if attributeName == "attendeeType" and newValue not in ("staff", "student", "alumni", "guest"):
             print("\nValue of 'attendeeType' must be 'staff', 'student', 'alumni', or 'guest'.")
-        if attributeName == "AffiliatedOrganization" and newValue not in ("PolyU", "SPEED", "HKCC", "Others"):
+        if attributeName == "affiliatedOrganization" and newValue not in ("PolyU", "SPEED", "HKCC", "Others"):
             print("\nValue of 'affiliatedOrganization' must be 'PolyU', 'SPEED', 'HKCC', or 'Others'.")
         print("\nError:", e)
         
@@ -164,8 +169,80 @@ def printAttendee(emailAddress, cursor):
             for row in all_rows:
                 print(row)
         else:
-            cursor.execute(f"SELECT * FROM Attendee WHERE EmailAddress = '{emailAddress}'")
+            cursor.execute(f"SELECT * FROM Attendee WHERE emailAddress = '{emailAddress}'")
             print("\nList of attendees: ")
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                print(row)
+    except sqlite3.Error as e:
+        print("\nError:", e)
+        
+def registerBanquet(emailAddress: str, password: str, banquetID: int, mealChoice: str, drinkChoice: str, remarks: str, sqliteConnection, cursor):
+    try:
+        cursor.execute(f"SELECT * FROM Attendee WHERE emailAddress = '{emailAddress}' AND password = '{password}'")
+        if cursor.fetchone() is None:
+            print("\nInvalid email address or password.")
+            return
+        cursor.execute(f"SELECT * FROM Banquet WHERE banquetID = {banquetID}")
+        if cursor.fetchone() is None:
+            print("\nInvalid banquet ID.")
+            return
+        cursor.execute(f"SELECT available FROM Banquet WHERE banquetID = {banquetID}")
+        available = cursor.fetchone()[0]
+        if available == 0:
+            print("\nBanquet is not available.")
+        cursor.execute("INSERT INTO Registers VALUES (?, ?, ?, ?, ?)",
+                       (emailAddress, banquetID, mealChoice, drinkChoice, remarks))
+        sqliteConnection.commit()
+        cursor.execute(f"UPDATE Banquet SET quota = quota - 1 WHERE banquetID = {banquetID}")
+        sqliteConnection.commit()
+        cursor.execute(f"SELECT quota FROM Banquet WHERE banquetID = {banquetID}")
+        quota = cursor.fetchone()[0]
+        if quota == 0:
+            cursor.execute(f"UPDATE Banquet SET AVAILABLE = 0 WHERE banquetID = {banquetID}")
+            sqliteConnection.commit()
+        print(f"\nRegistered {emailAddress} for banquet {banquetID}")
+    except sqlite3.Error as e:
+        print("\nError:", e)
+
+def deregisterBanquet(emailAddress: str, password: str, banquetID: int, sqliteConnection, cursor):
+    try:
+        cursor.execute(f"SELECT * FROM Attendee WHERE emailAddress = '{emailAddress}' AND password = '{password}'")
+        if cursor.fetchone() is None:
+            print("\nInvalid email address or password.")
+            return
+        cursor.execute(f"SELECT * FROM Banquet WHERE banquetID = {banquetID}")
+        if cursor.fetchone() is None:
+            print("\nInvalid banquet ID.")
+            return
+        cursor.execute(f"SELECT available FROM Banquet WHERE banquetID = {banquetID}")
+        available = cursor.fetchone()[0]
+        if available == 0:
+            print("\nBanquet is not available.")
+        cursor.execute(f"DELETE FROM Registers WHERE emailAddress = '{emailAddress}' AND banquetID = {banquetID}")
+        sqliteConnection.commit()
+        cursor.execute(f"UPDATE Banquet SET quota = quota + 1 WHERE banquetID = {banquetID}")
+        sqliteConnection.commit()
+        cursor.execute(f"SELECT quota FROM Banquet WHERE banquetID = {banquetID}")
+        quota = cursor.fetchone()[0]
+        if quota >= 1:
+            cursor.execute(f"UPDATE Banquet SET AVAILABLE = 1 WHERE banquetID = {banquetID}")
+            sqliteConnection.commit()
+        print(f"\nDeregistered {emailAddress} for banquet {banquetID}")
+    except sqlite3.Error as e:
+        print("\nError:", e)
+        
+def printRegisters(emailAddress: str, cursor):
+    try: 
+        if emailAddress == "all":
+            cursor.execute("SELECT * FROM Registers")
+            print("\nList of registrations: ")
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                print(row)
+        else:
+            cursor.execute(f"SELECT * FROM Registers WHERE emailAddress = '{emailAddress}'")
+            print("\nList of registrations: ")
             all_rows = cursor.fetchall()
             for row in all_rows:
                 print(row)
@@ -182,7 +259,7 @@ def isValidDate(date: str) -> bool:
     
 def isInDatabase(emailAddress: str, cursor) -> bool:
     try:
-        cursor.execute(f"SELECT * FROM Attendee WHERE EmailAddress = '{emailAddress}'")
+        cursor.execute(f"SELECT * FROM Attendee WHERE emailAddress = '{emailAddress}'")
         if cursor.fetchone() is not None:
             return True
         else:

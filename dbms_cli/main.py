@@ -54,6 +54,12 @@ def commandListAdmin(command, sqliteConnection, cursor):
                 return
             commands.adminEditAttendee(commandParsed[1], commandParsed[2], commandParsed[3], sqliteConnection, cursor)
             
+        case "printRegisters":
+            if len(commandParsed) != 2:
+                print('\nIncorrect number of parameters (Expected 2). Command format: printRegisters [BanquetID]')
+                return
+            commands.printRegisters(commandParsed[1], cursor)
+            
         case _:
             print('\nInvalid command. Please enter a valid command.')
             
@@ -63,7 +69,7 @@ def commandListUser(command, sqliteConnection, cursor):
     
     match commandParsed[0]:
         case "commandList":
-            print('\nUser commands: commandList, printBanquet, editAttendee')
+            print('\nUser commands: commandList, printBanquet, printAttendee, editAttendee, registerBanquet, deregisterBanquet, printRegisters')
             
         case "printBanquet":
             if len(commandParsed) != 2:
@@ -83,6 +89,24 @@ def commandListUser(command, sqliteConnection, cursor):
                 return
             commands.editAttendee(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], sqliteConnection, cursor)
             
+        case "registerBanquet":
+            if len(commandParsed) != 7:
+                print('\nIncorrect number of parameters (Expected 7). Command format: registerBanquet [emailAddress] [Password] [BanquetID] [MealChoice] [DrinkChoice] [Remarks]')
+                return
+            commands.registerBanquet(loggedInUserEmail, commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], sqliteConnection, cursor)
+            
+        case "deregisterBanquet":
+            if len(commandParsed) != 4:
+                print('\nIncorrect number of parameters (Expected 4). Command format: deregisterBanquet [emailAddress] [Password] [BanquetID]')
+                return
+            commands.deregisterBanquet(loggedInUserEmail, commandParsed[2], commandParsed[3], sqliteConnection, cursor)
+            
+        case "printRegisters":
+            if len(commandParsed) != 2:
+                print('\nIncorrect number of parameters (Expected 2). Command format: printRegisters [BanquetID]')
+                return
+            commands.printRegisters(commandParsed[1], cursor)
+            
         case _:
             print('\nInvalid command. Please enter a valid command.')
             
@@ -91,7 +115,7 @@ def newAccount(command, sqliteConnection, cursor):
     match commandParsed[0]:
         case "createAttendee":
             if len(commandParsed) != 9:
-                print('\nInvalid number of arguments, Expected 9 arguments, got', len(commandParsed))
+                print('\nIncorrect number of parameters (Expected 9). Command format: createAttendee [emailAddress] [firstName] [lastName] [address] [password] [attendeeType] [mobileNumber] [affiliatedOrganization]')
                 return
             commands.createAttendee(commandParsed[1], commandParsed[2], commandParsed[3], commandParsed[4], commandParsed[5], commandParsed[6], commandParsed[7], commandParsed[8], sqliteConnection, cursor)
             
@@ -126,9 +150,13 @@ def main():
             if commands.userLogin(email, password, sqliteConnection, cursor):
                 commandListUser('commandList', sqliteConnection, cursor)
         else:
-            loggedInUserEmail = email
-            createAttendee = input('\nUser not found. Create an account to continue: ')
-            newAccount(createAttendee, sqliteConnection, cursor)
+            try:
+                loggedInUserEmail = email
+                createAttendee = input('\nUser not found. Create an account to continue: ')
+                newAccount(createAttendee, sqliteConnection, cursor)
+            except Exception as e:
+                print(f'\nAn error occurred: {e}. Exiting the program...')
+                return
             
     else:
         print('\nInvalid role. Exiting the program...')
