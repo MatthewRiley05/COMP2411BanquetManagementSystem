@@ -63,13 +63,25 @@ def editBanquet(banquetID: int, attributeName: str, newValue, sqliteConnection, 
             print("\nIncorrect format for date. Correct format: YYYY-MM-DD_HH:MM")
         print("\nError:", e)
         
-def printBanquet(cursor):
+def printBanquet(banquetID, cursor):
     try: 
-        cursor.execute("SELECT * FROM Banquet")
-        print("\nList of banquets: ")
-        all_rows = cursor.fetchall()
-        for row in all_rows:
-            print(row)
+        if banquetID == 'all':
+            cursor.execute("SELECT * FROM Banquet")
+            print("\nList of banquets: ")
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                print(row)
+        else:
+            cursor.execute(f"SELECT * FROM Banquet WHERE BanquetID = {banquetID}")
+            print(f"Banquet {banquetID}: ")
+            banquet = cursor.fetchone()
+            print(banquet)
+            cursor.execute(f"SELECT * FROM Meal WHERE BanquetID = {banquetID}")
+            meals = cursor.fetchall()
+            print("\nMeals: ")
+            for meal in meals:
+                print(meal)
+            
     except sqlite3.Error as e:
         print("\nError:", e)
         

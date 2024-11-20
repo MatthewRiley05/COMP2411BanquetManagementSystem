@@ -37,10 +37,10 @@ def commandListAdmin(command, sqliteConnection, cursor):
             commands.editBanquet(commandParsed[1], commandParsed[2], commandParsed[3], sqliteConnection, cursor)
             
         case "printBanquet":
-            if len(commandParsed) != 1:
-                print('\nIncorrect number of parameters (Expected 1). Command format: printBanquet')
+            if len(commandParsed) != 2:
+                print('\nIncorrect number of parameters (Expected 2). Command format: printBanquet [BanquetID]')
                 return
-            commands.printBanquet(cursor)
+            commands.printBanquet(commandParsed[1], cursor)
             
         case "printAttendee":
             if len(commandParsed) != 2:
@@ -66,10 +66,10 @@ def commandListUser(command, sqliteConnection, cursor):
             print('\nUser commands: commandList, printBanquet, editAttendee')
             
         case "printBanquet":
-            if len(commandParsed) != 1:
-                print('\nIncorrect number of parameters (Expected 1). Command format: printBanquet')
+            if len(commandParsed) != 2:
+                print('\nIncorrect number of parameters (Expected 2). Command format: printBanquet [BanquetID]')
                 return
-            commands.printBanquet(cursor)
+            commands.printBanquet(commandParsed[1], cursor)
             
         case "printAttendee":
             if len(commandParsed) != 1:
