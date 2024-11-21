@@ -9,7 +9,7 @@ def commandListAdmin(command, sqliteConnection, cursor):
     
     match commandParsed[0]:
         case "commandList":
-            print('\nAdmin commands: commandList, createNewBanquet, deleteBanquet, editBanquet, printBanquet, printAttendee, editAttendee')
+            print('\nAdmin commands: commandList, createNewBanquet, deleteBanquet, editBanquet, printBanquet, printAttendee, editAttendee, generateReport')
             
         case "createNewBanquet":
             if len(commandParsed) != 11:
@@ -59,7 +59,12 @@ def commandListAdmin(command, sqliteConnection, cursor):
                 print('\nIncorrect number of parameters (Expected 2). Command format: printRegisters [BanquetID]')
                 return
             commands.printRegisters(commandParsed[1], cursor)
-            
+        
+        case "generateReport":
+            if len(commandParsed) != 1:
+                print('\nIncorrect number of parameters (Expected 1). Command format: generateReport')
+                return
+            commands.generateReport(sqliteConnection, cursor)
         case _:
             print('\nInvalid command. Please enter a valid command.')
             
