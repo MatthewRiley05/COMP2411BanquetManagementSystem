@@ -249,6 +249,32 @@ def printRegisters(emailAddress: str, cursor):
     except sqlite3.Error as e:
         print("\nError:", e)
         
+def searchRegisters(emailAddress, attributeName: str, attributeValue, cursor):
+    try:
+        query = f"SELECT * FROM Registers WHERE emailAddress = ? AND {attributeName} = ?"
+        cursor.execute(query, (emailAddress, attributeValue))
+        print("\nList of registrations: ")
+        all_rows = cursor.fetchall()
+        for row in all_rows:
+            print(row)
+    except sqlite3.Error as e:
+        print("\nError:", e)
+        
+def editRegisters(emailAddress, banquetID: int, attributeName: str, newValue, sqliteConnection, cursor):
+    try:
+        if attributeName not in ("emailAddress", "banquetID", "mealChoice", "drinkChoice", "remarks"):
+            print("\nInvalid attribute name.")
+            return
+        elif attributeName == "banquetID":
+            print("\nCannot change banquet ID.")
+            return
+        else:
+            cursor.execute(f"UPDATE Registers SET {attributeName} = '{newValue}' WHERE emailAddress = '{emailAddress}' AND banquetID = {banquetID}")
+            sqliteConnection.commit()
+            print(f"\nUpdated registration for {emailAddress} for banquet {banquetID}. Changed {attributeName} to {newValue}")
+    except sqlite3.Error as e:
+        print("\nError:", e)
+        
 # Utility functions
 def isValidDate(date: str) -> bool:
     try:

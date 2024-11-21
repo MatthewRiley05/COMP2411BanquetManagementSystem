@@ -65,6 +65,8 @@ def commandListAdmin(command, sqliteConnection, cursor):
             
 def commandListUser(command, sqliteConnection, cursor):
     
+    global loggedInUserEmail
+    
     commandParsed = command.split(" ")
     
     match commandParsed[0]:
@@ -101,11 +103,17 @@ def commandListUser(command, sqliteConnection, cursor):
                 return
             commands.deregisterBanquet(loggedInUserEmail, commandParsed[2], commandParsed[3], sqliteConnection, cursor)
             
-        case "printRegisters":
-            if len(commandParsed) != 2:
-                print('\nIncorrect number of parameters (Expected 2). Command format: printRegisters [BanquetID]')
+        case "searchRegisters":
+            if len(commandParsed) != 3:
+                print('\nIncorrect number of parameters (Expected 3). Command format: searchRegisters [attributeName] [attributeValue]')
                 return
-            commands.printRegisters(commandParsed[1], cursor)
+            commands.searchRegisters(loggedInUserEmail, commandParsed[1], commandParsed[2], cursor)
+            
+        case "editRegisters":
+            if len(commandParsed) != 4:
+                print('\nIncorrect number of parameters (Expected 5). Command format: editRegisters [emailAddress] [banquetID] [attributeName] [NewValue]')
+                return
+            commands.editRegisters(loggedInUserEmail, commandParsed[1], commandParsed[2], commandParsed[3], sqliteConnection, cursor)
             
         case _:
             print('\nInvalid command. Please enter a valid command.')
