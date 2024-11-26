@@ -9,7 +9,7 @@ def commandListAdmin(command, sqliteConnection, cursor):
     
     match commandParsed[0]:
         case "commandList":
-            print('\nAdmin commands: commandList, createNewBanquet, deleteBanquet, editBanquet, printBanquet, printAttendee, editAttendee, generateReport')
+            print('\nAdmin commands: commandList, createNewBanquet, deleteBanquet, editBanquet, printBanquet, printAttendee, editAttendee, printRegisters, generateReport')
             
         case "createNewBanquet":
             if len(commandParsed) != 11:
