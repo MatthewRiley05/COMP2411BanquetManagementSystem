@@ -56,7 +56,7 @@ def commandListAdmin(command, sqliteConnection, cursor):
             
         case "printRegisters":
             if len(commandParsed) != 2:
-                print('\nIncorrect number of parameters (Expected 2). Command format: printRegisters [BanquetID]')
+                print('\nIncorrect number of parameters (Expected 2). Command format: printRegisters [Email]')
                 return
             commands.printRegisters(commandParsed[1], cursor)
         
