@@ -76,7 +76,7 @@ def commandListUser(command, sqliteConnection, cursor):
     
     match commandParsed[0]:
         case "commandList":
-            print('\nUser commands: commandList, printBanquet, printAttendee, editAttendee, registerBanquet, deregisterBanquet, printRegisters')
+            print('\nUser commands: commandList, printBanquet, printAttendee, editAttendee, registerBanquet, deregisterBanquet, searchRegisters, printRegisters')
             
         case "printBanquet":
             if len(commandParsed) != 2:
