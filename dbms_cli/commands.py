@@ -275,6 +275,24 @@ def editRegisters(emailAddress, banquetID: int, attributeName: str, newValue, sq
     except sqlite3.Error as e:
         print("\nError:", e)
         
+def generateReport(sqliteConnection, cursor):
+    try:
+        print("ANALYSIS REPORT\n")
+        print("Top 3 most common attendee affiliated organizations (organization name, amount of affiliated attendees): ")
+        cursor.execute("SELECT affiliatedOrganization, COUNT (*) AS occurrence FROM Attendee GROUP BY affiliatedOrganization ORDER BY occurrence DESC LIMIT 3")
+        all_attendee_rows = cursor.fetchall()
+        for row in all_attendee_rows:
+            print(row)
+        
+        print("Top 3 most popular meals (meal name, amount of orders): ")
+        cursor.execute("SELECT dishName, COUNT(*) AS occurrence FROM Meal GROUP BY dishName ORDER BY occurrence DESC LIMIT 3")
+        all_meal_rows = cursor.fetchall()
+        for row in all_meal_rows:
+            print(row)
+
+    except sqlite3.Error as e:
+        print("\nError: ", e)
+
 # Utility functions
 def isValidDate(date: str) -> bool:
     try:
